@@ -1,0 +1,33 @@
+- name: Add Jenkins Debian repository key
+  ansible.builtin.apt_key:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    state: present
+
+- name: Add Jenkins Debian repository
+  ansible.builtin.apt_repository:
+    repo: deb https://pkg.jenkins.io/debian-stable binary/
+    state: present
+
+- name: Update APT
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install OpenJDK 17
+  ansible.builtin.apt:
+    name:
+      - fontconfig
+      - openjdk-17-jre
+    state: present
+
+- name: Install Jenkins
+  ansible.builtin.apt:
+    name:
+      - jenkins
+    state: present
+
+- name: Start and enable Jenkins service
+  ansible.builtin.service:
+    name: jenkins
+    state: started
+    enabled: true
