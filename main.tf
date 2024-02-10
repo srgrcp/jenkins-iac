@@ -6,7 +6,7 @@ resource "azurerm_public_ip" "jenkins-pi" {
 }
 
 resource "azurerm_network_interface" "jenkins-ni" {
-  name                = "jenkins-sn"
+  name                = "jenkins-ni"
   location            = azurerm_resource_group.jenkins-rs.location
   resource_group_name = azurerm_resource_group.jenkins-rs.name
 
@@ -64,4 +64,11 @@ resource "azurerm_linux_virtual_machine" "jenkins-vm" {
   provisioner "local-exec" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu -i ${self.public_ip_address}, --private-key ansible/jenkins-key.pem ansible/setup-jenkins.yml"
   }
+}
+
+resource "azurerm_management_lock" "jenkins_vm_lock" {
+  name       = "JenkinsVMLock"
+  scope      = azurerm_linux_virtual_machine.jenkins-vm.id
+  lock_level = "CanNotDelete"
+  notes      = "Lock to prevent accidental deletion of the Jenkins VM"
 }
